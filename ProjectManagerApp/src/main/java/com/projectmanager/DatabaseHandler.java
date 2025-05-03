@@ -107,6 +107,19 @@ public class DatabaseHandler {
         }
     }
     
+    public void deleteTeamMember(int memberId) {
+        String query = "DELETE FROM team_members WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setInt(1, memberId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     // Tasks CRUD operations
     public List<Task> getTasksByProject(int projectId) {
         List<Task> tasks = new ArrayList<>();
@@ -124,7 +137,36 @@ public class DatabaseHandler {
                     rs.getString("title"),
                     rs.getString("description"),
                     rs.getInt("project_id"),
-                    rs.getInt("assigned_to")
+                    rs.getInt("assigned_to"),
+                    rs.getBoolean("completed")
+                );
+                tasks.add(task);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return tasks;
+    }
+    
+    public List<Task> getCompletedTasksByProject(int projectId) {
+        List<Task> tasks = new ArrayList<>();
+        String query = "SELECT * FROM tasks WHERE project_id = ? AND completed = true";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setInt(1, projectId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                Task task = new Task(
+                    rs.getInt("id"),
+                    rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getInt("project_id"),
+                    rs.getInt("assigned_to"),
+                    true
                 );
                 tasks.add(task);
             }
@@ -136,7 +178,7 @@ public class DatabaseHandler {
     }
     
     public void addTask(Task task) {
-        String query = "INSERT INTO tasks (title, description, project_id, assigned_to) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO tasks (title, description, project_id, assigned_to, completed) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -151,6 +193,8 @@ public class DatabaseHandler {
                 pstmt.setNull(4, java.sql.Types.INTEGER);
             }
             
+            pstmt.setBoolean(5, task.isCompleted());
+            
             pstmt.executeUpdate();
             
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
@@ -158,6 +202,30 @@ public class DatabaseHandler {
                     task.setId(generatedKeys.getInt(1));
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void updateTask(Task task) {
+        String query = "UPDATE tasks SET title = ?, description = ?, assigned_to = ?, completed = ? WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setString(1, task.getTitle());
+            pstmt.setString(2, task.getDescription());
+            
+            if (task.getAssignedTo() > 0) {
+                pstmt.setInt(3, task.getAssignedTo());
+            } else {
+                pstmt.setNull(3, java.sql.Types.INTEGER);
+            }
+            
+            pstmt.setBoolean(4, task.isCompleted());
+            pstmt.setInt(5, task.getId());
+            
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -176,6 +244,33 @@ public class DatabaseHandler {
             }
             
             pstmt.setInt(2, taskId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void updateTaskCompletion(int taskId, boolean completed) {
+        String query = "UPDATE tasks SET completed = ? WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setBoolean(1, completed);
+            pstmt.setInt(2, taskId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void deleteTask(int taskId) {
+        String query = "DELETE FROM tasks WHERE id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setInt(1, taskId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
