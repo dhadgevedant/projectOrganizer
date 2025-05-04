@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     description TEXT,
     project_id INT NOT NULL,
     assigned_to INT NULL,
+    completed BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (assigned_to) REFERENCES team_members(id) ON DELETE SET NULL
 );
