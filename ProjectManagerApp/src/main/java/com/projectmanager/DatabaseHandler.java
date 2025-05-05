@@ -9,8 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHandler {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/project_manager";
-    private static final String USER = "root";
+
+    
+
+    // //LOCAL DB
+    // private static final String DB_URL = "jdbc:mysql://localhost:3306/project_manager";
+    // private static final String USER = "root";
+    // private static final String PASS = "";
+
+    // Aiven DB
+    private static final String DB_URL = "jdbc:mysql://" + "mysql-projectmanager-dhadge-projectmanager01.l.aivencloud.com" + ":" + "10382" + "/" + "project_manager" + "?sslmode=require";
+    private static final String USER = "avnadmin";
     private static final String PASS = "";
     
     private Connection getConnection() throws SQLException {

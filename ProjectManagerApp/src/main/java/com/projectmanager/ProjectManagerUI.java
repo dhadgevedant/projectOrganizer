@@ -264,6 +264,17 @@ public class ProjectManagerUI extends JFrame {
         headerPanel.add(viewCompletedBtn, BorderLayout.EAST);
         
         projectPanel.add(headerPanel, BorderLayout.NORTH);
+
+        // Add a refresh button
+        JButton refreshButton = createStyledButton("Refresh");
+        refreshButton.setToolTipText("Refresh the project view");
+        refreshButton.setForeground(TEXT_COLOR);
+        refreshButton.addActionListener(e -> openProject(currentProject));
+        headerPanel.add(refreshButton, BorderLayout.WEST);
+
+       
+
+
         
         // Main content with tasks and team members
         JPanel mainContent = new JPanel(new BorderLayout(20, 0));
